@@ -36,10 +36,20 @@ object EventShovel {
   LogManager.getRootLogger().setLevel(Level.WARN)
   
   def main(args:Array[String]) {
+    if (args.length < 2) {
+      System.err.println(s"""
+        |Usage: EventShovel <spark-master> <cassandra-host>
+        |  <spark-master> is the hostname/ip of the spark master
+        |  <cassandra-host> is the hostname/ip of a cassandra node
+        |
+        """.stripMargin)
+      System.exit(1)
+    }
+		val Array(spark_master, cass_host) = args
 
-    val SparkMasterHost = "127.0.0.1"
+    val SparkMasterHost = spark_master
 
-    val CassandraHost = "127.0.0.1"
+    val CassandraHost = cass_host
 
     // Tell Spark the address of one Cassandra node:
     val conf = new SparkConf(true)
@@ -79,11 +89,6 @@ object EventShovel {
     })
 
     rand_ts.saveToCassandra("newton", "security_event")
-    /*
-      .format("org.apache.spark.sql.cassandra")
-      .options(Map( "table" -> "security_event", "keyspace" -> "newton"))
-      .save()
-    */
   }
 }
 
